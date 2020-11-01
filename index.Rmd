@@ -17,4 +17,15 @@ My working on homework 4. A little about me. And my cats' cute photo.
 [About me](about_me.html)
 
 
+# If you are a cat person, hope this will make you happy
+
+Here is Cola, take some times to find her:
+
+<img src="images/cola.jpeg" style="width:75%">
+
+Let's meet Potato, already tired in the morning: 
+
+<img src="images/potato.jpeg" style="width:75%">
+
+
 
