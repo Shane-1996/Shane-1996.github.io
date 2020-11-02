@@ -6,6 +6,8 @@ output:
     toc_float: true
 ---
 
+This is a magic website.
+
 # What to expect in this page?
 
 My working on homework 4. A little about me. And my cats' cute photo. 
