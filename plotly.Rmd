@@ -13,29 +13,42 @@ library(tidyverse)
 library(p8105.datasets)
 library(plotly)
 
-data("instacart")
+data("ny_noaa")
 ```
 
-The data will be presented here is the "instacart" data.
+The data will be presented here is the "ny_noaa" data.
 
 ```{r}
-instacart = 
-  instacart %>% 
-  select(product_name, aisle, department) 
-```
-
-```{r}
-instacart %>% 
-  count(aisle) %>% 
-  filter(n > 10000) %>% 
+noaa_df = 
+  ny_noaa%>% 
+  separate(date, into = c("year", "month", "day"), convert = TRUE) %>% 
+  filter(year %in% 2001:2010, id %in% c("USW00094728", "USC00300331", "USC00300443"))%>% 
   mutate(
-    aisle = factor(aisle),
-    aisle = fct_reorder(aisle,n)
+    tmax = as.numeric(tmax),
+    tmin = as.numeric(tmin),
+    prcp = as.numeric(prcp),
+    prcp = prcp / 10,
+    tmin = tmin / 10,
+    tmax = tmax / 10,
+    snow_mm = snow,
+    snow = round(snow_mm * 0.03937 * 4) / 4,
+    name = recode(
+      id,
+      USW00094728 = "CentralPark",
+      USC00300331 = "AURORA RESEARCH FARM",
+      USC00300443 = "BATAVIA"
+    )
   ) %>% 
-  plot_ly(
-    y = ~n, x = ~aisle, color = ~aisle, 
-    type = "bar", colors = "viridis"
-  )
+  select(name, year, month, day, prcp, snow, tmin, tmax)
+```
 
+```{r}
+noaa_df %>% 
+  mutate(text_label = str_c("Precipitation: ", prcp, "\nSnow: ", snow)) %>% 
+  drop_na(tmin, tmax, snow) %>% 
+  filter(snow != 0) %>% 
+  plot_ly(
+    x = ~tmin, y = ~tmax, color = ~name, text = ~text_label, 
+    alpha = .5, type = "scatter", mode = "markers", colors = "viridis")
 ```
 
