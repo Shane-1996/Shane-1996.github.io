@@ -5,8 +5,6 @@ output:
     orientation: columns
     vertical_layout: fill
     source: embed
-editor_options: 
-  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -39,7 +37,7 @@ noaa_df =
 Column {data-width=550}
 -----------------------------------------------------------------------
 
-### Minium vs. Maximum tempreture at three selected station with snow and prcp
+### Chart A： Minium vs. Maximum tempreture at three selected station with snow and prcp
 
 ```{r}
 noaa_df %>% 
@@ -64,23 +62,37 @@ noaa_df %>%
 Column {data-width=450}
 -----------------------------------------------------------------------
 
-### Precipitation: Rainy day at "USC00308" NY station
+### Chart B： Precipitation: Rainy day at "USC00308~" NY station
 
 ```{r}
 noaa_df %>% 
   mutate(id = fct_reorder(id, prcp)) %>% 
   filter(
-    year %in% 2007,
+    year %in% 2001:2010,
     prcp > 0,
     str_detect(id, "USC00308")
   ) %>% 
   plot_ly(y = ~prcp, color = ~id, type = "box", colors = "viridis")
-  
+
 ```
 
-### Chart C
+### Chart C: Count of snowy day at "USC00308~" NY station
 
 ```{r}
+noaa_df %>% 
+  drop_na(snow) %>% 
+  mutate(snow_day = if_else(snow > 0, "yes", "no")) %>% 
+  filter(
+    year %in% 2001:2010,
+    snow_day == "yes",
+    str_detect(id, "USC00308")
+  ) %>%   
+  count(id, snow_day) %>% 
+  mutate(
+    id = fct_reorder(id, n)
+  ) %>% 
+  plot_ly(x = ~id, y = ~n, color = ~id,
+          type = "bar", colors = "viridis")
 
 ```
 
