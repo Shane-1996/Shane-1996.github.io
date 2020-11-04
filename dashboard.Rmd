@@ -5,6 +5,8 @@ output:
     orientation: columns
     vertical_layout: fill
     source: embed
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -21,7 +23,6 @@ data("ny_noaa")
 noaa_df = 
   ny_noaa%>% 
   separate(date, into = c("year", "month", "day"), convert = TRUE) %>% 
-  filter(year %in% 2001:2010, id %in% c("USW00094728", "USC00300331", "USC00300443"))%>% 
   mutate(
     tmax = as.numeric(tmax),
     tmin = as.numeric(tmin),
@@ -30,7 +31,21 @@ noaa_df =
     tmin = tmin / 10,
     tmax = tmax / 10,
     snow_mm = snow,
-    snow = round(snow_mm * 0.03937 * 4) / 4,
+    snow = round(snow_mm * 0.03937 * 4) / 4
+  ) %>% 
+  select(id, year, month, day, prcp, snow, tmin, tmax)
+```
+
+Column {data-width=550}
+-----------------------------------------------------------------------
+
+### Minium vs. Maximum tempreture at three selected station with snow and prcp
+
+```{r}
+noaa_df %>% 
+  filter(year %in% 2001:2010, id %in% c("USW00094728", "USC00300331", "USC00300443"))%>% 
+  mutate(
+    text_label = str_c("Precipitation: ", prcp, "\nSnow: ", snow),
     name = recode(
       id,
       USW00094728 = "CentralPark",
@@ -38,17 +53,6 @@ noaa_df =
       USC00300443 = "BATAVIA"
     )
   ) %>% 
-  select(name, year, month, day, prcp, snow, tmin, tmax)
-```
-
-Column {data-width=650}
------------------------------------------------------------------------
-
-### tmin vs. tmax with snow and prcp
-
-```{r}
-noaa_df %>% 
-  mutate(text_label = str_c("Precipitation: ", prcp, "\nSnow: ", snow)) %>% 
   drop_na(tmin, tmax, snow) %>% 
   filter(snow != 0) %>% 
   plot_ly(
@@ -57,13 +61,21 @@ noaa_df %>%
 
 ```
 
-Column {data-width=350}
+Column {data-width=450}
 -----------------------------------------------------------------------
 
-### Chart B
+### Precipitation: Rainy day at "USC00308" NY station
 
 ```{r}
-
+noaa_df %>% 
+  mutate(id = fct_reorder(id, prcp)) %>% 
+  filter(
+    year %in% 2007,
+    prcp > 0,
+    str_detect(id, "USC00308")
+  ) %>% 
+  plot_ly(y = ~prcp, color = ~id, type = "box", colors = "viridis")
+  
 ```
 
 ### Chart C
